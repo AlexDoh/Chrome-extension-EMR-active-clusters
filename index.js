@@ -32,21 +32,15 @@ const createMainElements = (region) => {
   return { accordion, container };
 };
 
-const addRowToRegionContainer = (row, container, text) => {
+const createRowInRegionContainer = (container, text, elementType, active) => {
+  const row = document.createElement(elementType);
+  if (active) {
+    row.classList.toggle('active');
+  }
   row.classList.toggle('container__line');
   row.innerText = text;
   container.appendChild(row);
   return row;
-};
-
-const createRowInRegionContainer = (container, text, active) => {
-  if (active) {
-    const row = document.createElement('li');
-    row.classList.toggle('active');
-    return addRowToRegionContainer(row, container, text);
-  } else {
-    return addRowToRegionContainer(document.createElement('p'), container, text);
-  }
 };
 
 const addClickForOpeningContainer = (accordion) => {
@@ -72,7 +66,7 @@ const processClusters = (region, clusters) => {
 
     clusters.forEach(cluster => {
       console.log(cluster);
-      const row = createRowInRegionContainer(list, `${cluster.name} - ${cluster.id} - ${cluster.status.state}`, true);
+      const row = createRowInRegionContainer(list, `${cluster.name} - ${cluster.id} - ${cluster.status.state}`, 'li', true);
 
       let masterPrivateIP;
       const listInstanceGroupsPayload = config.actions.listInstanceGroups.parameters;
@@ -105,7 +99,7 @@ const processClusters = (region, clusters) => {
   }
 
   if (clusters.length === 0) {
-    createRowInRegionContainer(container, config.noClustersText);
+    createRowInRegionContainer(container, config.noClustersText, 'p');
   }
 
   document.body.appendChild(accordion);
