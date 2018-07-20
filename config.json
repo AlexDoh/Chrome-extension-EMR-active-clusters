@@ -1,0 +1,65 @@
+{
+  "commonDomain": ".amazon.com",
+  "commonPath": "console.aws.amazon.com",
+  "cookieCredentials": "aws-creds",
+  "cookieInfo": "aws-userInfo",
+  "linkExtensionPathXhr": "/elasticmapreduce/srf",
+  "linkExtensionPathHome": "/elasticmapreduce/home",
+  "noClustersText": "No active clusters here",
+  "masterNodeName": "MASTER",
+  "masterPrivatePort": "8088",
+  "unauthorizedText": "You haven't authorized or your cookies are expired/corrupted on next Amazon regions:",
+  "commonPayload": {
+    "version": "1.0",
+    "actions": [
+      {
+        "action": "com.amazon.aws.emr.console.shared.EmrRequestContext.",
+        "parameters": []
+      }
+    ]
+  },
+  "regions": [
+    {
+      "name": "Ireland",
+      "extension": "eu-west-1.",
+      "id": "eu-west-1"
+    },
+    {
+      "name": "Frankfurt",
+      "extension": "eu-central-1.",
+      "id": "eu-central-1"
+    },
+    {
+      "name": "N. Virginia",
+      "extension": "",
+      "id": "us-east-1"
+    }
+  ],
+  "actions": {
+    "listClustersPrivate": {
+      "name": "listClustersPrivate",
+      "parameters": {
+        "clusterStates": [
+          "STARTING",
+          "BOOTSTRAPPING",
+          "RUNNING",
+          "WAITING",
+          "TERMINATING"
+        ]
+      }
+    },
+    "listInstanceGroups": {
+      "name": "listInstanceGroups",
+      "parameters": {
+        "clusterId": ""
+      }
+    },
+    "listInstances": {
+      "name": "listInstances",
+      "parameters": {
+        "clusterId": "",
+        "instanceGroupId": ""
+      }
+    }
+  }
+}
