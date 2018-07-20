@@ -32,15 +32,21 @@ const createMainElements = (region) => {
   return { accordion, container };
 };
 
-const createRowInContainer = (container, text, active) => {
-  const row = document.createElement('p');
-  if (active) {
-    row.classList.toggle('active');
-  }
+const addRowToRegionContainer = (row, container, text) => {
   row.classList.toggle('container__line');
   row.innerText = text;
   container.appendChild(row);
   return row;
+};
+
+const createRowInRegionContainer = (container, text, active) => {
+  if (active) {
+    const row = document.createElement('li');
+    row.classList.toggle('active');
+    return addRowToRegionContainer(row, container, text);
+  } else {
+    return addRowToRegionContainer(document.createElement('p'), container, text);
+  }
 };
 
 const addClickForOpeningContainer = (accordion) => {
@@ -56,42 +62,50 @@ const addClickForOpeningContainer = (accordion) => {
 };
 
 const processClusters = (region, clusters) => {
+  console.log(clusters);
   const { accordion, container } = createMainElements(region);
 
-  clusters.forEach(cluster => {
-    const row = createRowInContainer(container, `${cluster.name} ${cluster.id}`, true);
+  if (clusters.length) {
+    container.style.padding = "0";
+    const list = document.createElement('ul');
+    container.appendChild(list);
 
-    let masterPrivateIP;
-    const listInstanceGroupsPayload = config.actions.listInstanceGroups.parameters;
-    listInstanceGroupsPayload.clusterId = cluster.id;
-    loadEMRXhr(
-      region.extension,
-      config.actions.listInstanceGroups.name,
-      listInstanceGroupsPayload,
-      (response) => {
-        const masterGroupId = response.instanceGroups.find(group => group.instanceGroupType === config.masterNodeName).id;
-        const listInstancesPayload = config.actions.listInstances.parameters;
-        listInstancesPayload.clusterId = cluster.id;
-        listInstancesPayload.instanceGroupId = masterGroupId;
-        loadEMRXhr(
-          region.extension,
-          config.actions.listInstances.name,
-          listInstancesPayload,
-          (response) => masterPrivateIP = response.instances[ 0 ].privateIpAddress
-        )
-      }
-    );
+    clusters.forEach(cluster => {
+      console.log(cluster);
+      const row = createRowInRegionContainer(list, `${cluster.name} - ${cluster.id} - ${cluster.status.state}`, true);
 
-    row.onclick = (() =>
+      let masterPrivateIP;
+      const listInstanceGroupsPayload = config.actions.listInstanceGroups.parameters;
+      listInstanceGroupsPayload.clusterId = cluster.id;
+      loadEMRXhr(
+        region.extension,
+        config.actions.listInstanceGroups.name,
+        listInstanceGroupsPayload,
+        (response) => {
+          console.log(response);
+          const masterGroupId = response.instanceGroups.find(group => group.instanceGroupType === config.masterNodeName).id;
+          const listInstancesPayload = config.actions.listInstances.parameters;
+          listInstancesPayload.clusterId = cluster.id;
+          listInstancesPayload.instanceGroupId = masterGroupId;
+          loadEMRXhr(
+            region.extension,
+            config.actions.listInstances.name,
+            listInstancesPayload,
+            (response) => masterPrivateIP = response.instances[ 0 ].privateIpAddress
+          )
+        }
+      );
+
+      row.onclick = () =>
         chrome.tabs.create({
           url: `http://${masterPrivateIP}:${config.masterPrivatePort}`,
           selected: true
-        })
-    );
-  });
+        });
+    });
+  }
 
   if (clusters.length === 0) {
-    createRowInContainer(container, config.noClustersText);
+    createRowInRegionContainer(container, config.noClustersText);
   }
 
   document.body.appendChild(accordion);
