@@ -55,17 +55,24 @@ const addClickForOpeningContainer = (accordion) => {
   });
 };
 
+const createTooltipForClusterRow = (row, cluster) => {
+  const tooltip = document.createElement('div');
+  tooltip.innerHTML = 'info';
+  tooltip.classList.toggle('tooltip');
+  tooltip.style.visibility = 'hidden';
+
+  row.appendChild(tooltip);
+};
+
 const processClusters = (region, clusters) => {
-  console.log(clusters);
   const { accordion, container } = createMainElements(region);
 
   if (clusters.length) {
-    container.style.padding = "0";
+    container.style.padding = '0';
     const list = document.createElement('ul');
     container.appendChild(list);
 
     clusters.forEach(cluster => {
-      console.log(cluster);
       const row = createRowInRegionContainer(list, `${cluster.name} - ${cluster.id} - ${cluster.status.state}`, 'li', true);
 
       let masterPrivateIP;
@@ -76,7 +83,6 @@ const processClusters = (region, clusters) => {
         config.actions.listInstanceGroups.name,
         listInstanceGroupsPayload,
         (response) => {
-          console.log(response);
           const masterGroupId = response.instanceGroups.find(group => group.instanceGroupType === config.masterNodeName).id;
           const listInstancesPayload = config.actions.listInstances.parameters;
           listInstancesPayload.clusterId = cluster.id;
@@ -95,6 +101,17 @@ const processClusters = (region, clusters) => {
           url: `http://${masterPrivateIP}:${config.masterPrivatePort}`,
           selected: true
         });
+
+      createTooltipForClusterRow(row, cluster);
+
+      row.onmouseover = () => {
+        const tooltip = document.querySelector('.tooltip');
+        tooltip.style.visibility = 'visible';
+      };
+      row.onmouseout = () => {
+        const tooltip = document.querySelector('.tooltip');
+        tooltip.style.visibility = 'hidden';
+      };
     });
   }
 

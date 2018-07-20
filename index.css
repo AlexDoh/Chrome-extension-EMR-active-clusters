@@ -31,6 +31,7 @@ body {
 }
 
 .container__line {
+    position: relative;
     font-size: medium;
 }
 
@@ -58,5 +59,16 @@ body {
     display: flex;
     flex-direction: column;
     font-size: medium;
+    padding: 5px;
+}
+
+.tooltip {
+    visibility: hidden;
+    position: fixed;
+    transform: translateY(-75%);
+    background-color: #008080;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
     padding: 5px;
 }
