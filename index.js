@@ -62,6 +62,7 @@ const createTooltipForClusterRow = (row, cluster) => {
   tooltip.style.visibility = 'hidden';
 
   row.appendChild(tooltip);
+  return tooltip;
 };
 
 const processClusters = (region, clusters) => {
@@ -102,14 +103,12 @@ const processClusters = (region, clusters) => {
           selected: true
         });
 
-      createTooltipForClusterRow(row, cluster);
+      const tooltip = createTooltipForClusterRow(row, cluster);
 
       row.onmouseover = () => {
-        const tooltip = document.querySelector('.tooltip');
         tooltip.style.visibility = 'visible';
       };
       row.onmouseout = () => {
-        const tooltip = document.querySelector('.tooltip');
         tooltip.style.visibility = 'hidden';
       };
     });
