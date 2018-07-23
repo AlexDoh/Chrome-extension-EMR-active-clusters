@@ -67,9 +67,10 @@ body {
     visibility: hidden;
     position: fixed;
     transform: translateY(-75%);
+    display: flex;
+    flex-direction: column;
     background-color: #008080;
     color: white;
-    text-align: center;
     border-radius: 6px;
     padding: 5px;
 }

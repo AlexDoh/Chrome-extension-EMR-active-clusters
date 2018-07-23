@@ -55,11 +55,34 @@ const addClickForOpeningContainer = (accordion) => {
   });
 };
 
-const createTooltipForClusterRow = (row, cluster) => {
+const createTooltipForClusterRow = (row, cluster, groups) => {
   const tooltip = document.createElement('div');
-  tooltip.innerHTML = 'info';
   tooltip.classList.toggle('tooltip');
   tooltip.style.visibility = 'hidden';
+
+  const elapsedTimeElement = document.createElement('span');
+  const diffMs = Date.now() - cluster.status.timeline.creationDateTime;
+  const elapsedDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const elapsedHrs = Math.floor(diffMs / (1000 * 60 * 60) % 24);
+  const elapsedMins = Math.floor(diffMs / (1000 * 60) % 60);
+  const elapsedSeconds = Math.floor(diffMs / (1000) % 60);
+  let elapsedTime = '';
+  if (elapsedDays) elapsedTime += `${elapsedDays} days `;
+  if (elapsedHrs) elapsedTime += `${elapsedHrs} hours `;
+  if (elapsedMins) elapsedTime += `${elapsedMins} minutes `;
+  if (elapsedSeconds) elapsedTime += `${elapsedSeconds} seconds`;
+  elapsedTimeElement.innerHTML = `Elapsed time - ${elapsedTime}`;
+  tooltip.appendChild(elapsedTimeElement);
+
+  const coreGroup = groups.find(group => group.instanceGroupType === 'CORE');
+  const coreNodes = document.createElement('span');
+  coreNodes.innerHTML = `Core nodes - ${coreGroup.runningInstanceCount}`;
+  tooltip.appendChild(coreNodes);
+
+  const taskGroup = groups.find(group => group.instanceGroupType === 'TASK');
+  const taskNodes = document.createElement('span');
+  taskNodes.innerHTML = `Task nodes - ${taskGroup.runningInstanceCount}`;
+  tooltip.appendChild(taskNodes);
 
   row.appendChild(tooltip);
   return tooltip;
@@ -76,6 +99,7 @@ const processClusters = (region, clusters) => {
     clusters.forEach(cluster => {
       const row = createRowInRegionContainer(list, `${cluster.name} - ${cluster.id} - ${cluster.status.state}`, 'li', true);
 
+      let tooltip;
       let masterPrivateIP;
       const listInstanceGroupsPayload = config.actions.listInstanceGroups.parameters;
       listInstanceGroupsPayload.clusterId = cluster.id;
@@ -83,16 +107,19 @@ const processClusters = (region, clusters) => {
         region.extension,
         config.actions.listInstanceGroups.name,
         listInstanceGroupsPayload,
-        (response) => {
-          const masterGroupId = response.instanceGroups.find(group => group.instanceGroupType === config.masterNodeName).id;
+        (listGroups) => {
+          const masterGroupId = listGroups.instanceGroups.find(group => group.instanceGroupType === config.masterNodeName).id;
           const listInstancesPayload = config.actions.listInstances.parameters;
           listInstancesPayload.clusterId = cluster.id;
           listInstancesPayload.instanceGroupId = masterGroupId;
+
+          tooltip = createTooltipForClusterRow(row, cluster, listGroups.instanceGroups);
+
           loadEMRXhr(
             region.extension,
             config.actions.listInstances.name,
             listInstancesPayload,
-            (response) => masterPrivateIP = response.instances[ 0 ].privateIpAddress
+            (listInstances) => masterPrivateIP = listInstances.instances[ 0 ].privateIpAddress
           )
         }
       );
@@ -103,14 +130,8 @@ const processClusters = (region, clusters) => {
           selected: true
         });
 
-      const tooltip = createTooltipForClusterRow(row, cluster);
-
-      row.onmouseover = () => {
-        tooltip.style.visibility = 'visible';
-      };
-      row.onmouseout = () => {
-        tooltip.style.visibility = 'hidden';
-      };
+      row.onmouseover = () => tooltip.style.visibility = 'visible';
+      row.onmouseout = () => tooltip.style.visibility = 'hidden';
     });
   }
 
