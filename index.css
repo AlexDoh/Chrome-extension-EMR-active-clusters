@@ -7,7 +7,8 @@ body {
 }
 
 .accordion {
-    background-color: #eee;
+    margin-bottom: 5px;
+    background-color: #f8e5bc;
     color: #444;
     cursor: pointer;
     padding: 18px;
