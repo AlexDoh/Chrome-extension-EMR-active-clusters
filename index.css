@@ -16,7 +16,7 @@ body {
     text-align: left;
     border: none;
     outline: none;
-    transition: 0.4s;
+    transition: all .3s ease-in-out;
 }
 
 .active.accordion:hover {
@@ -28,7 +28,7 @@ body {
     background-color: white;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.2s ease-out;
+    transition: max-height .3s ease-in-out;
 }
 
 .container__line {
@@ -48,8 +48,8 @@ body {
     color: #777;
     float: right;
     margin-left: 5px;
-    -webkit-transition: all .35s;
-    transition: all .35s;
+    -webkit-transition: all .3s ease-in-out;
+    transition: all .3s ease-in-out;
 }
 
 .active.accordion:after {
